@@ -96,7 +96,7 @@ public class WebCrawler {
         results.add(page);
         // This add specifically covers redirects
         queued.add(page.uri());
-        log.info("\n {}", page);
+        System.out.println(page);
     }
 
     void workerFinished() {
