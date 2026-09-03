@@ -24,6 +24,7 @@ class PageFetcher {
     private static final int MAX_ATTEMPTS = 3;
     private static final long BACKOFF_BASE_MS = 500;
 
+    // Probably want to flip this to be an 'opt in' rather than 'opt out' approach
     private static final Set<Integer> NON_RETRYABLE_STATUS_CODES = Set.of(
         400, // Bad Request
         401, // Unauthorized

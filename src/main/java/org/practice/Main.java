@@ -23,6 +23,7 @@ public class Main {
         if (args == null || args.length != 3) {
             throw new IllegalArgumentException("Usage: <seed URL> <timeout in seconds> <number of workers>");
         }
+
         URI seedUri = URI.create(args[0]);
         int timeoutSeconds;
         int workers;

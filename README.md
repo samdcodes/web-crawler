@@ -55,6 +55,7 @@ mvn clean test
     - lower-cases of the scheme and host
     - removes URL fragments
     - resolves dot-segments
+    - drops the default port (e.g. http://monzo.com:80 is treated the same as http://monzo.com)
 - `PageFetcher` uses jsoup for the request and HTML parsing. Redirects are followed manually so each hop is scope-checked before it is fetched. 
 - Permanent client errors are not retried; other HTTP error responses are retried with a linear backoff.
 - Non-HTML responses are skipped.

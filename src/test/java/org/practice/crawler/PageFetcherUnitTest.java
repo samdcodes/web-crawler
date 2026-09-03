@@ -59,23 +59,34 @@ public class PageFetcherUnitTest {
 
     @Test
     void fetch_doesNotFollowExternalRedirect() {
-        WireMockServer externalServer = new WireMockServer(wireMockConfig().dynamicPort());
-        externalServer.start();
-        try {
-            externalServer.stubFor(get("/external").willReturn(aResponse().withStatus(200)));
-            server.stubFor(get("/external-redirect")
-                    .willReturn(aResponse().withStatus(302)
-                            .withHeader("Location", externalServer.baseUrl() + "/external")));
-
-            Optional<Document> page = fetcher.fetch(path("/external-redirect"));
-
-            assertTrue(page.isEmpty());
-            externalServer.verify(0, getRequestedFor(urlEqualTo("/external")));
-        } finally {
-            externalServer.stop();
-        }
+        server.stubFor(get("/external-redirect")
+                .willReturn(aResponse().withStatus(302)
+                        .withHeader("Location", "http://localhost:" + server.port() + "/external")
+                )
+        );
+        Optional<Document> page = fetcher.fetch(path("/external-redirect"));
+        assertTrue(page.isEmpty());
+        server.verify(0, getRequestedFor(urlEqualTo("/external")));
     }
 
+    @Test
+    void fetch_followsRedirectsToSameHostOnDifferentPort() {
+        WireMockServer differentPortSameHost = new WireMockServer(wireMockConfig().dynamicPort());
+        differentPortSameHost.start();
+        try {
+            differentPortSameHost.stubFor(get("/moved").willReturn(aResponse().withStatus(200)
+                    .withHeader("Content-Type", "text/html").withBody("<html></html>")));
+            server.stubFor(get("/port-redirect")
+                    .willReturn(aResponse().withStatus(302)
+                            .withHeader("Location",  "http://127.0.0.1:" + differentPortSameHost.port() + "/moved")
+                    )
+            );
+            assertTrue(fetcher.fetch(path("/port-redirect")).isPresent());
+            differentPortSameHost.verify(1, getRequestedFor(urlEqualTo("/moved")));
+        } finally {
+            differentPortSameHost.stop();
+        }
+    }
     @Test
     void fetch_doesNotFollowUnsupportedSchemeRedirect() {
         URI redirectUri = URI.create("ftp://127.0.0.1:" + server.port() + "/unsupported");

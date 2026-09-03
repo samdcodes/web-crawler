@@ -48,4 +48,24 @@ public class UriNormaliserUnitTest {
         URI tel = URI.create("tel:+441234567890");
         assertEquals(tel, UriNormaliser.normalise(tel));
     }
+
+    @Test
+    void normalise_preservesEncodedCharacters() {
+        URI encodedSlash = URI.create("https://example.com/path/a%2Fb"); // %2F decodes to '/'
+        URI encodedQuery = URI.create("https://example.com/path?q=a%26b=c"); // %26 decodes to '&'
+        assertEquals(encodedSlash, UriNormaliser.normalise(encodedSlash));
+        assertEquals(encodedQuery, UriNormaliser.normalise(encodedQuery));
+    }
+
+    @Test
+    void normalise_stripsTheDefaultPort() {
+        URI httpsWithPort = URI.create("https://example.com:443/");
+        URI httpsWithoutPort = URI.create("https://example.com/");
+
+        URI httpWithPort = URI.create("http://example.com:80/");
+        URI httpWithoutPort = URI.create("http://example.com/");
+
+        assertEquals(httpsWithoutPort, UriNormaliser.normalise(httpsWithPort));
+        assertEquals(httpWithoutPort, UriNormaliser.normalise(httpWithPort));
+    }
 }

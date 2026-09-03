@@ -35,7 +35,7 @@ public class WebCrawler {
     // Set on items which have been queued to avoid same link being placed on queue multiple times
     private final Set<URI> queued = ConcurrentHashMap.newKeySet();
 
-    // Successfully crawled pages
+    // Successfully crawled pages (currently an unbounded queue, will grow very large for large subdomains)
     private final Collection<CrawledPage> results = new ConcurrentLinkedQueue<>();
 
 
